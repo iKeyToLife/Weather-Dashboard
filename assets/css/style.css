@@ -20,6 +20,8 @@
     --info: #17a2b8;
     --light: #f8f9fa;
     --dark: #17171b;
+    --header-yellow: var(--yellow);
+    --header-dark: var(--dark);
 }
 
 /* Font root */
@@ -59,5 +61,5 @@ body {
     top: 0px;
     width: 100%;
     height: 10%;
-    background: linear-gradient(100deg, var(--yellow), var(--dark));
+    background: linear-gradient(100deg, var(--header-yellow), var(--header-dark));
 }
