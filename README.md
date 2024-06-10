@@ -47,5 +47,4 @@ The following demonstrates the application functionality:
 [My blog Deployed Application](https://ikeytolife.github.io/Weather-Dashboard/)
 
 ## Example Application
-![Application Screenshot]()
-![Application Screenshot]()
+![Application Screenshot](./assets/images/weather-dashboard.png)

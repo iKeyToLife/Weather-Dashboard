@@ -4,6 +4,7 @@ const btnSectionEl = $(`.buttons-city`);
 const sectionContainer = $(`.container-fluid`)
 const APIKey = `548704e26170b9290cd2484ab2201149`;
 
+// class for create new object city
 class City {
     constructor(cityData) {
         this.id = cityData.id;
@@ -23,13 +24,15 @@ function setCityInLocalStorage(cityList) {
 // check have we in local storage current city
 function saveInLocalStorage(dataCity) {
     let currentCityArray = getCityFromLocalStorage();
-    console.log("check me/n")
-    console.log(dataCity)
+
     const existsInLocalStorage = currentCityArray.some(city => city.id === dataCity.id);
-    const newCity = new City(dataCity)
+
+    // check if we have in local storage, then do not save new city
     if (!existsInLocalStorage) {
+        const newCity = new City(dataCity)
         currentCityArray.push(newCity);
         setCityInLocalStorage(currentCityArray);
+        createBtnCard(newCity);
     }
 }
 
@@ -47,22 +50,8 @@ function fetchWeatherByLatLon(currentData) {
         .then(response => response.json())
         .then(data => {
             currentData.id = data.id;
-            // saveInLocalStorage(currentData);
-            const temperature = data.main.temp;
-            const humidity = data.main.humidity;
-            const windSpeed = data.wind.speed;
-            const weatherDescription = data.weather[0].description;
-            const weatherIcon = data.weather[0].icon;
-            const weatherIconUrl = `http://openweathermap.org/img/wn/${weatherIcon}@2x.png`;
+            saveInLocalStorage(currentData);
             renderCurrentDayWeather(data);
-
-            console.log(`Temperature: ${temperature}°C`);
-            console.log(`Humidity: ${humidity}%`);
-            console.log(`Wind Speed: ${windSpeed} m/s`);
-            console.log(`Weather: ${weatherDescription}`);
-            console.log(`Weather Icon: ${weatherIconUrl}`);
-            console.log(data);
-            console.log(url);
         })
         .catch(error => console.error('Error:', error));
 }
@@ -75,6 +64,7 @@ function fetchForecastByLatLon(currentData) {
         .then(response => response.json())
         .then(data => {
             console.log(data)
+            renderCurrentForecastWeather(data)
         })
         .catch(error => console.error('Error:', error));
 }
@@ -88,7 +78,6 @@ $(document).ready(function () {
 
     // autocomplete for input
     searchEl.autocomplete({
-        //
         source: function (request, response) {
             $.ajax({
                 url: `https://api.openweathermap.org/geo/1.0/direct?q=${request.term}&limit=5&appid=${APIKey}`,
@@ -119,26 +108,36 @@ $(document).ready(function () {
         }
     });
 });
+
+// create Buttons for city
 function createBtnCard(city) {
     const btnEl = $(`<button></button>`)
         .addClass(`btn btn-primary col-12 text-white mb-2`)
         .text(`${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`)
         .attr(`data-task-id`, city.id);
-    btnEl.on(`click`, function () {
+    btnEl.on(`click`, function (event) {
+        event.preventDefault();
         fetchWeatherByLatLon(city);
+        fetchForecastByLatLon(city);
     });
 
     btnSectionEl.append(btnEl);
 }
 
+// Init last city weather
 function renderInit() {
     btnSectionEl.empty();
     const cityList = getCityFromLocalStorage();
     for (let i = cityList.length - 1; i >= 0; i--) {
         createBtnCard(cityList[i])
     }
+    if (cityList.length > 0) {
+        fetchWeatherByLatLon(cityList[cityList.length - 1]);
+        fetchForecastByLatLon(cityList[cityList.length - 1]);
+    }
 }
 
+// render current day
 function renderCurrentDayWeather(data) {
     $(".container-fluid .city-weather-info").remove();
 
@@ -154,26 +153,74 @@ function renderCurrentDayWeather(data) {
 
     const formattedDate = today.format('MM/DD/YYYY');
 
-    const weatherInfoHTML = `
-    <div class="city-weather-info weather-section p-3 d-inline-block col">
-        <div class="weather-details border border-white rounded p-3">
-            <h2 class="city-name">${cityName} ${formattedDate} <img src="${weatherIconUrl}" alt="Weather Icon"
-                    class="img-fluid weather-icon">
-            </h2>
-            <p class="description">Weather ${weatherDescription}</p>
-            <p class="temperature">Temp: ${temperature}°C</p>
-            <p class="wind">Wind: ${windSpeed} m/s</p>
-            <p class="humidity">Humidity: ${humidity}%</p>
-        </div>
-    </div>`;
+    // create new HTML elemets for current day
+    const weatherInfoHTML =
+        `<div class="city-weather-info weather-section p-3 d-inline-block col">
+            <div class="weather-details border border-white rounded p-3">
+                <h2 class="city-name">${cityName} ${formattedDate} <img src="${weatherIconUrl}" alt="Weather Icon"
+                        class="img-fluid weather-icon">
+                </h2>
+                <p class="description">Weather ${weatherDescription}</p>
+                <p class="temperature">Temp: ${temperature}°C</p>
+                <p class="wind">Wind: ${windSpeed} m/s</p>
+                <p class="humidity">Humidity: ${humidity}%</p>
+            </div>
+        </div>`;
     $(".container-fluid").append(weatherInfoHTML);
 }
+
+// render forecast
+function renderCurrentForecastWeather(data) {
+
+    const forecastCard = $(`<div></div>`)
+        .addClass(`forecast-weather row flex-wrap">`);
+    const h2ForecastEl = `<h2 class="mt-2">5-Day Forecast</h2>`;
+    forecastCard.append(h2ForecastEl);
+    let today = dayjs();
+    let daysMax = 0;
+
+    // loop for check dates and create new elements daylist for 5 days
+    for (let i = 0; i < data.list.length && daysMax < 5; i++) {
+
+        const dateFromData = data.list[i].dt_txt.split(' ')[0];
+
+        const currentDate = dayjs(dateFromData);
+
+        // if same go start loop
+        if (currentDate.isSame(today, 'day')) {
+            continue;
+            // if not same create element
+        } else {
+            // update today today to current for check next day
+            today = currentDate;
+            const temperature = data.list[i].main.temp;
+            const humidity = data.list[i].main.humidity;
+            const windSpeed = data.list[i].wind.speed;
+            const weatherIcon = data.list[i].weather[0].icon;
+            const weatherIconUrl = `http://openweathermap.org/img/wn/${weatherIcon}@2x.png`;
+            const formattedDate = today.format('MM/DD/YYYY');
+            const html = `<div class="col-2 mt-2">
+                                    <div class="weather-sections">
+                                        <div class="weather-section-small">
+                                            <div class="weather-details-small border border-white rounded p-2">
+                                                <h3 class="day-name">${formattedDate}</h3>
+                                                <p class="description"><img src="${weatherIconUrl}" alt="Weather Icon"
+                            class="img-fluid weather-icon"></p>
+                                                <p class="temperature">Temp: ${temperature}°C</p>
+                                                <p class="wind">Wind: ${windSpeed} m/s</p>
+                                                <p class="humidity">Humidity: ${humidity}%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+
+            forecastCard.append(html);
+
+            daysMax++;
+        }
+    }
+    // add to weather section forecast
+    $(".weather-section").append(forecastCard);
+}
+
 renderInit()
-
-
-// TODO:
-// fetch forecast 5 days
-// save localStorage id & NameCity country state
-// render cards buttons city
-// render cards weather and forecast
-// make init

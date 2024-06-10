@@ -102,11 +102,7 @@ body {
 
 .buttons-city {
     width: 100%;
-    height: 60%;
-    overflow-y: scroll;
-}
-
-.buttons-city {
+    height: 40%;
     overflow-y: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
