@@ -63,7 +63,6 @@ function fetchForecastByLatLon(currentData) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
             renderCurrentForecastWeather(data)
         })
         .catch(error => console.error('Error:', error));
