@@ -20,21 +20,26 @@
     <header class="header">
         <h1 class="fs-2">Weather Dashboard</h1>
     </header>
-    <section class="form">
-        <form class="col-12">
-            <div class="text-center">
-                <h2 class="fs-2">Search for a City:</h2>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="mb-3">
-                        <input class="form-control form-control-lg" type="text" id="search" placeholder="City">
+    <section class="container-fluid">
+        <section class="form row col-12">
+            <form class="col-12">
+                <div class="text-center">
+                    <h2 class="fs-2">Search for a City:</h2>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <input class="form-control form-control-lg" type="text" id="search" placeholder="City">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-warning col-12 text-white mb-2" id="submit">Submit</button>
-        </form>
+                <button type="submit" class="btn btn-warning col-12 text-white mb-4" id="submit">Submit</button>
+            </form>
+            <section class="buttons-city col-12">
+            </section>
+        </section>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>
 </html>
