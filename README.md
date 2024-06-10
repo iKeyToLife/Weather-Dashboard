@@ -41,10 +41,10 @@ The following demonstrates the application functionality:
 ![Here's an example of the functionality that should be implemented.](./assets/images/06-server-side-apis-homework-demo.png)
 
 ## Repository Link
-[My blog Repository](https://github.com/iKeyToLife/Weather-Dashboard/)
+[Weather Dashboard Repository](https://github.com/iKeyToLife/Weather-Dashboard/)
 
 ## Deployed Application
-[My blog Deployed Application](https://ikeytolife.github.io/Weather-Dashboard/)
+[Weather Dashboard Application](https://ikeytolife.github.io/Weather-Dashboard/)
 
 ## Example Application
 ![Application Screenshot](./assets/images/weather-dashboard.png)
